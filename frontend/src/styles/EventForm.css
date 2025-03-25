@@ -1,0 +1,62 @@
+/* Container principal */
+.container-form {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 16px;
+}
+
+/* Título centralizado */
+.title {
+	text-align: center;
+	font-size: 36px;
+	font-weight: bold;
+	margin-bottom: 24px;
+}
+
+/* Estilo do formulário */
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px; /* Espaçamento entre os elementos */
+}
+
+/* Campos de entrada */
+.input-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.input-field {
+	width: 100%;
+	border: 1px solid #d1d5db; /* Cinza claro */
+	border-radius: 4px;
+	padding: 8px 12px;
+	font-size: 14px;
+}
+
+.input-field:focus {
+	outline: none;
+	border-color: #3b82f6; /* Azul */
+	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Azul claro */
+}
+
+/* Botão de salvar */
+.save-button {
+	background-color: #3b82f6; /* Azul */
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.save-button:hover {
+	background-color: #2563eb; /* Azul mais escuro */
+}
+
+/* Mensagens de erro */
+.error-message {
+	color: red;
+	font-size: 12px;
+}

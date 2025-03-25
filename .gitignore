@@ -1,0 +1,30 @@
+# Compiled class files
+*.class
+
+# Logs
+*.log
+
+# Build directories
+/target/
+/bin/
+/out/
+postgres-data/
+
+# IDEs
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+.vscode/
+
+# Dependencies
+/lib/
+/*.jar
+/*.war
+/*.ear
+
+# Configurações Sensíveis
+*.env
+*.key
+*.p12

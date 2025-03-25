@@ -1,0 +1,141 @@
+/* Estilo para o container principal */
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 16px;
+}
+
+/* Título centralizado */
+.title {
+	text-align: center;
+	font-size: 36px;
+	font-weight: bold;
+	margin-bottom: 16px;
+}
+
+/* Botão para adicionar nova instituição */
+.button-container {
+	display: flex;
+	justify-content: space-between;
+	float: right;
+	margin-bottom: 16px;
+}
+
+.add-button {
+	background-color: #3b82f6;
+	color: white;
+	padding: 8px 16px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	float: right;
+}
+
+.add-button:hover {
+	background-color: #2563eb;
+}
+
+/* Lista de instituições */
+.institution-list {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 16px;
+}
+
+.institution-list th,
+.institution-list td {
+	border: 1px solid #ddd;
+	padding: 8px;
+	text-align: left;
+	text-align: center; /* Centraliza o texto */
+}
+
+.institution-list th {
+	background-color: #f3f4f6;
+	font-weight: bold;
+}
+
+.institution-list tr:hover {
+	background-color: #f9fafb;
+}
+
+/* título das colunas */
+.table-header {
+	text-align: center;
+}
+
+/* Botões de ação */
+.action-button {
+	padding: 4px 16px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	margin-right: 8px;
+}
+
+.edit-button {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.edit-button:hover {
+	background-color: #2563eb;
+}
+
+.view-button {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.view-button:hover {
+	background-color: #2563eb;
+}
+
+.delete-button {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.delete-button:hover {
+	background-color: #2563eb;
+}
+
+/* Container para o botão de voltar e a paginação */
+.pagination-container {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	margin-top: 16px;
+}
+
+/* Botões de paginação */
+.pagination button {
+	padding: 8px 16px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.pagination button:disabled {
+	background-color: #e5e7eb;
+	cursor: not-allowed;
+}
+
+.pagination button:not(:disabled) {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.pagination button:not(:disabled):hover {
+	background-color: #2563eb;
+}
+
+/* Estilo para o span entre os botões de paginação */
+.pagination span {
+	padding: 4px 8px;				/* Espaçamento interno */
+	border-radius: 4px;				/* Bordas arredondadas */
+	background-color: #f9fafb;		/* Fundo cinza claro */
+	font-size: 14px;				/* Tamanho da fonte */
+	color: #4b5563;				/* Texto cinza escuro */
+	margin: 0 8px;					/* Espaçamento horizontal entre o span e os botões */
+}
