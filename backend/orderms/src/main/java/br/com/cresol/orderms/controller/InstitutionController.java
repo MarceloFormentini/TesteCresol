@@ -33,7 +33,7 @@ public class InstitutionController {
 	@PostMapping
 	public ResponseEntity<?> addNewInstitution(@Valid @RequestBody Institution newInstitution){
 		Institution institution = service.addNewInstitution(newInstitution);
-		return ResponseEntity.ok(null);
+		return ResponseEntity.ok(new InstitutionDTO(institution));
 	}
 
 	@GetMapping
