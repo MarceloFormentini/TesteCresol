@@ -26,26 +26,42 @@ public class GlobalExceptionHandler {
 		);
 	}
 
-	@ExceptionHandler(InstitutionConflictException.class)
-	public ResponseEntity<Map<String, Object>> handleConflict(InstitutionConflictException ex){
+	@ExceptionHandler({
+		InstitutionConflictException.class,
+		TypeInstituionConflictException.class,
+		LocationConflictException.class
+	})
+	public ResponseEntity<Map<String, Object>> handleConflict(RuntimeException ex){
 		return ResponseEntity.status(HttpStatus.CONFLICT)
 				.body(createErrorResponse(HttpStatus.CONFLICT, ex.getMessage()));
 	}
 
-	@ExceptionHandler({InstitutionNotFoundException.class, EventNotFoundException.class})
+	@ExceptionHandler({
+		InstitutionNotFoundException.class,
+		EventNotFoundException.class,
+		TypeInstitutionNotFoundException.class,
+		LocatationNotFoudException.class
+	})
 	public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex){
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
 	}
 
-	@ExceptionHandler({EventInstitutionIncompatibleException.class, EventDateIncorrectException.class})
+	@ExceptionHandler({
+		EventInstitutionIncompatibleException.class,
+		EventDateIncorrectException.class,
+		LocationInstitutionIncompatibleException.class
+	})
 	public ResponseEntity<Map<String, Object>> handleNotAcceptable(RuntimeException ex){
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
 				.body(createErrorResponse(HttpStatus.NOT_ACCEPTABLE, ex.getMessage()));
 	}
 
-	@ExceptionHandler(InstitutionUsedException.class)
-	public ResponseEntity<Map<String, Object>> handleInstitutionUsed(InstitutionUsedException ex){
+	@ExceptionHandler({
+		InstitutionUsedException.class,
+		TypeInstitutionUsedException.class
+	})
+	public ResponseEntity<Map<String, Object>> handleInstitutionUsed(RuntimeException ex){
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage()));
 	}
