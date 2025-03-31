@@ -7,29 +7,32 @@ import org.springframework.stereotype.Service;
 import br.com.cresol.orderms.exception.InstitutionConflictException;
 import br.com.cresol.orderms.exception.InstitutionNotFoundException;
 import br.com.cresol.orderms.exception.InstitutionUsedException;
+import br.com.cresol.orderms.exception.TypeInstitutionNotFoundException;
 import br.com.cresol.orderms.model.Institution;
+import br.com.cresol.orderms.model.TypeInstitution;
 import br.com.cresol.orderms.repository.EventRepository;
 import br.com.cresol.orderms.repository.InstitutionRepository;
-import jakarta.validation.Valid;
+import br.com.cresol.orderms.repository.TypeInstitutionRepository;
 
 @Service
 public class InstitutionService {
 	
 	private final InstitutionRepository repository;
 	private final EventRepository eventRepository;
+	private final TypeInstitutionRepository typeRepository;
 	
-	public InstitutionService(InstitutionRepository repository, EventRepository eventRepository) {
+	public InstitutionService(InstitutionRepository repository, EventRepository eventRepository, TypeInstitutionRepository typeRepository) {
 		this.repository = repository;
 		this.eventRepository = eventRepository;
+		this.typeRepository = typeRepository; 
 	}
 
-	public Institution addNewInstitution(@Valid Institution newInstitution) {
-		repository.findByNameAndType(
+	public Institution addNewInstitution(Institution newInstitution) {
+		if (repository.existsByNameAndTypeInstitution(
 			newInstitution.getName(),
-			newInstitution.getType()
-		).ifPresent(institution -> {
-			throw new RuntimeException("Instituição " + institution.getNameAndType() + " já cadastrada");
-		});
+			newInstitution.getTypeInstitution())){
+			throw new InstitutionConflictException("Instituição " + newInstitution.getNameAndType() + " já cadastrada");
+		}
 	
 		return repository.save(newInstitution);
 	}
@@ -46,20 +49,25 @@ public class InstitutionService {
 	}
 
 	public Institution updateInstitution(Institution newInstitution) {
+		
 		Institution institution = repository.findById(newInstitution.getId())
 				.orElseThrow(() -> new InstitutionNotFoundException("Não existe instituição cadastrada com o código " + newInstitution.getId()));
 
-		institution.setName(newInstitution.getName());
-		institution.setType(newInstitution.getType());
+		TypeInstitution typeInstitution = typeRepository.findById(newInstitution.getTypeInstitution().getId())
+				.orElseThrow(() -> new TypeInstitutionNotFoundException("Não existe tipo cadastrado com o código " + newInstitution.getTypeInstitution().getId()));
 
-		repository.findByNameAndType(
+		institution.setName(newInstitution.getName());
+		institution.setTypeInstitution(typeInstitution);
+
+		System.out.println(institution.toString());
+
+		if (repository.existsByNameAndTypeInstitution(
 			newInstitution.getName(),
-			newInstitution.getType()
-		).ifPresent(upInstitution -> {
+			newInstitution.getTypeInstitution())){
 			throw new InstitutionConflictException(
-				"Instituição " + newInstitution.getName() + " - " + newInstitution.getType() + " já cadastrada."
+				"Instituição " + newInstitution.getNameAndType() + " já cadastrada."
 			);
-		});
+		}
 
 		repository.save(institution);
 

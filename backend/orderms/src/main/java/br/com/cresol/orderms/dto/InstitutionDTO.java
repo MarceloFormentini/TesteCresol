@@ -1,11 +1,12 @@
 package br.com.cresol.orderms.dto;
 
 import br.com.cresol.orderms.model.Institution;
+import br.com.cresol.orderms.model.TypeInstitution;
 
 public class InstitutionDTO {
 	private Integer id;
 	private String name;
-	private String type;
+	private TypeInstitution typeInstitution;
 
 	public InstitutionDTO() {
 	}
@@ -13,7 +14,7 @@ public class InstitutionDTO {
 	public InstitutionDTO(Institution institution) {
 		this.id = institution.getId();
 		this.name = institution.getName();
-		this.type = institution.getType();
+		this.typeInstitution = institution.getTypeInstitution();
 	}
 
 	public Integer getId() {
@@ -32,12 +33,12 @@ public class InstitutionDTO {
 		this.name = nome;
 	}
 
-	public String getType() {
-		return type;
+	public TypeInstitution getTypeInstitution() {
+		return typeInstitution;
 	}
 
-	public void setType(String tipo) {
-		this.type = tipo;
+	public void setTypeInstitution(TypeInstitution typeInstitution) {
+		this.typeInstitution = typeInstitution;
 	}
 
 }
