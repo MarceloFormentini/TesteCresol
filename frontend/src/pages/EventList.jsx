@@ -8,6 +8,7 @@ const EventList = () => {
 	const [events, setEvents] = useState([]);
 	const [page, setPage] = useState(0);
 	const [totalPages, setTotalPages] = useState(1);
+	const [errorLoad, setErrorLoad] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -19,8 +20,11 @@ const EventList = () => {
 		.then((response) => {
 			setEvents(response.data.content);
 			setTotalPages(response.data.totalPages);
+			setErrorLoad("");
 		})
-		.catch((error) => console.error("Erro ao buscar eventos:", error));
+		.catch((error) => {
+			setErrorLoad("Erro ao carregar a lista de eventos. Tente novamente mais tarde.");
+		});
 	};
 
 	const handleDelete = async (id) => {
@@ -29,7 +33,7 @@ const EventList = () => {
 			await deleteEvent(id);
 			loadEvents();
 		} catch (error) {
-			console.error("Erro ao excluir evento:", error);
+			setErrorLoad("Erro ao excluir o evento.");
 		}
 		}
 	};
@@ -83,8 +87,9 @@ const EventList = () => {
 				))}
 				</tbody>
 			</table>
+			{errorLoad && <p style={{ color: "red", marginBottom: "16px" }}>{errorLoad}</p>}
 			<div className="pagination-container">
-				<button className="back-button" onClick={() => navigate(-1)}>
+				<button className="back-button" onClick={() => navigate("/institution")}>
 					Voltar
 				</button>
 				<div className="pagination">

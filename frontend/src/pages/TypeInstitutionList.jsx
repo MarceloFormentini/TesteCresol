@@ -1,38 +1,38 @@
 import { useEffect, useState } from "react";
-import { getInstitution, deleteInstitution } from "../services/api";
+import { getTypeInstitution, deleteTypeInstitution } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import "../styles/InstitutionList.css";
+import "../styles/EventList.css";
 
-const InstitutionList = () => {
-	const [institution, setInstitution] = useState([]);
+const TypeInstitutionList = () => {
+	const [typeInstitution, setTypeInstitution] = useState([]);
 	const [page, setPage] = useState(0);
 	const [totalPages, setTotalPages] = useState(1);
-	const [errorLoad, setErrorLoad] = useState(false);
+	const [errorLoad, setErrorLoad] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		loadInstitution();
-	}, [page]); // atualiza a lista de instituições toda vez que a página muda
+		loadTypeInstitution();
+	}, [page]); // atualiza a lista de tipos toda vez que a página muda
 
-	const loadInstitution = () => {
-		getInstitution(page)
+	const loadTypeInstitution = () => {
+		getTypeInstitution(page)
 			.then((response) => {
-				setInstitution(response.data.content); // content -> contém os dados da página atual
+				setTypeInstitution(response.data); // content -> contém os dados da página atual
 				setTotalPages(response.data.totalPages); // totalPages -> contém o total de páginas
 				setErrorLoad("");
 			})
 			.catch((error) => {
-				setErrorLoad("Erro ao carregar a lista de instituição. Tente novamente mais tarde.");
+				setErrorLoad("Erro ao carregar a lista de tipos. Tente novamente mais tarde.");
 			});
 	}
 
-	const handleDelete = async (id) => {
-		if (window.confirm("Tem certeza que deseja excluir esta instituição?")) {
+	const handleTypeDelete = async (id) => {
+		if (window.confirm("Tem certeza que deseja excluir este tipo?")) {
 			try {
-				await deleteInstitution(id);
-				loadInstitution();
+				await deleteTypeInstitution(id);
+				loadTypeInstitution();
 			} catch (error) {
-				setErrorLoad("Erro ao excluir a instituição. Verifique se ele está vinculado a algum evento.");
+				setErrorLoad("Erro ao excluir o tipo. Verifique se não esta vinculado a uma instituição.");
 			}
 		}
 	};
@@ -51,36 +51,28 @@ const InstitutionList = () => {
 
 	return (
 		<div className="container">
-			<h1 className="title">Instituições</h1>
+			<h1 className="title">Tipos</h1>
 			<div className="button-container">
-				<button className="add-button" onClick={() => navigate("/typeinstitution")}>
-					Tipos
-				</button>
-				<button className="add-button" onClick={() => navigate("/institution/create")}>
-					Nova Instituição
+				<button className="add-button" onClick={() => navigate("/typeinstitution/create")}>
+					Novo Tipo
 				</button>
 			</div>
 			<table className="institution-list">
 				<thead>
 					<tr>
 						<th className="table-header">Nome</th>
-						<th className="table-header">Tipo</th>
 						<th className="table-header">Ações</th>
 					</tr>
 				</thead>
 				<tbody>
-					{institution.map((inst) => (
+					{typeInstitution.map((inst) => (
 						<tr key={inst.id} className="table-row">
 							<td className="table-cell">{inst.name}</td>
-							<td className="table-cell">{inst.typeInstitution.name}</td>
 							<td className="table-cell action-buttons">
-								<button onClick={() => navigate(`/institution/${inst.id}/event`)} className="action-button view-button">
-									Eventos
-								</button>
-								<button onClick={() => navigate(`/institution/edit/${inst.id}`)} className="action-button edit-button">
+								<button onClick={() => navigate(`/typeinstitution/edit/${inst.id}`)} className="action-button edit-button">
 									Editar
 								</button>
-								<button onClick={() => handleDelete(inst.id)} className="action-button delete-button">
+								<button onClick={() => handleTypeDelete(inst.id)} className="action-button delete-button">
 									Excluir
 								</button>
 							</td>
@@ -90,6 +82,9 @@ const InstitutionList = () => {
 			</table>
 			{errorLoad && <p style={{ color: "red", marginBottom: "16px" }}>{errorLoad}</p>}
 			<div className="pagination-container">
+				<button className="back-button" onClick={() => navigate("/institution")}>
+					Voltar
+				</button>
 				<div className="pagination">
 					<button onClick={pagePrevious} disabled={page === 0}>
 						Anterior
@@ -104,4 +99,4 @@ const InstitutionList = () => {
 	);
 };
 
-export default InstitutionList;
+export default TypeInstitutionList;

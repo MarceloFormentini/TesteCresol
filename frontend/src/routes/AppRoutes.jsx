@@ -1,7 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+import TypeInstitutionList from "../pages/TypeInstitutionList";
+import TypeInstitutionCreate from "../pages/TypeInstitutionCreate";
+import TypeInstitutionEdit from "../pages/TypeInstitutionEdit";
+
 import InstitutionList from "../pages/InstitutionList";
 import InstitutionCreate from "../pages/InstitutionCreate";
 import InstitutionEdit from "../pages/InstitutionEdit";
+
 import EventList from "../pages/EventList";
 import EventCreate from "../pages/EventCreate";
 import EventEdit from "../pages/EventEdit";
@@ -11,6 +17,11 @@ const AppRoutes = () => (
 		<Routes>
 			{/* Define a rota raiz da aplicação */}
 			<Route path="/" element={<Navigate to="/institution" replace />} />
+
+			{/* TypeInstitution */}
+			<Route path="/typeinstitution" element={<TypeInstitutionList />} />
+			<Route path="/typeinstitution/create" element={<TypeInstitutionCreate />} />
+			<Route path="/typeinstitution/edit/:id" element={<TypeInstitutionEdit />} />
 
 			{/* Institution */}
 			<Route path="/institution" element={<InstitutionList />} />

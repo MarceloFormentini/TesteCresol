@@ -7,6 +7,15 @@ const api = axios.create({
 	headers: { "Content-Type": "application/json" },
 });
 
+// TYPEINSTITUTION
+export const getTypeInstitution = (page = 0, size = 10, sort = "id") => {
+	return api.get(`/typeinstitution?page=${page}&size=${size}&sort=${sort}`);
+};
+export const getTypeInstitutionById = (id) => api.get(`/typeinstitution/${id}`);
+export const createTypeInstitution = (data) => api.post("/typeinstitution", data);
+export const updateTypeInstitution = (data) => api.put("/typeinstitution", data);
+export const deleteTypeInstitution = (id) => api.delete(`/typeinstitution/${id}`);
+
 // INSTITUTION
 export const getInstitution = (page = 0, size = 10, sort = "id") => {
 	return api.get(`/institution?page=${page}&size=${size}&sort=${sort}`);

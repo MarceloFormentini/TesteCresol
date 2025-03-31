@@ -8,14 +8,22 @@ const InstitutionCreate = () => {
 	const [errors, setErrors] = useState({});
 	const navigate = useNavigate();
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e, formData) => {
 		e.preventDefault();
 		setErrors({});
 
 		try{
-			await createInstitution(formData)
-			navigate("/");
+			const payload = {
+				name: formData.name,
+				typeInstitution: {
+					id: formData.typeInstitution.id,
+					name: formData.typeInstitution.name
+				},
+			};
+			await createInstitution(payload)
+			navigate("/institution");
 		}catch(error){
+			console.log(error);
 			if (error.response && error.response.data) {
 				setErrors(error.response.data);
 			}else{
@@ -29,7 +37,7 @@ const InstitutionCreate = () => {
 			<InstitutionForm 
 				title={"Cadastrar Instituição"}
 				formData={formData}
-				setFormData={setFormData} 
+				setFormData={setFormData}
 				onSubmit={handleSubmit}
 				errors={errors}
 			/>

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/EventForm.css";
 
-const EventForm = ({ title, formData, setFormData, onSubmit, errors }) => {
+const EventForm = ({ title, formData, setFormData, onSubmit, errors, institutionId }) => {
 	const navigate = useNavigate();
 
 	return (
@@ -54,7 +54,7 @@ const EventForm = ({ title, formData, setFormData, onSubmit, errors }) => {
 					{errors?.endDate && <p style={{ color: "red" }}>{errors.endDate}</p>}
 				</div>
 				<div className="button-container">
-					<button type="button" className="back-button" onClick={() => navigate(-1)}>
+					<button type="button" className="back-button" onClick={() => navigate(`/institution/${institutionId}/event`)}>
 						Voltar
 					</button>
 					<button type="submit" className="save-button">

@@ -69,6 +69,7 @@ const EventEdit = () => {
 				setFormData={setFormData}
 				onSubmit={handleSubmit}
 				errors={errors}
+				institutionId={institutionId}
 			/>
 		</div>
 	);

@@ -13,11 +13,21 @@ const InstitutionEdit = () => {
 		getInstitutionById(id).then((response) => setFormData(response.data));
 	}, [id]);
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e, formData) => {
 		e.preventDefault();
 		try {
-			await updateInstitution(formData);
-			navigate("/");
+			const payload = {
+				id: formData.id,
+				name: formData.name,
+				typeInstitution: {
+					id: formData.typeInstitution.id,
+					name: formData.typeInstitution.name
+				},
+			};
+			console.log(formData);
+			console.log("payload: ", payload)
+			await updateInstitution(payload);
+			navigate("/institution");
 		} catch (error) {
 			if(error.response && error.response.data) {
 				setErrorMessage(error.response.data);
