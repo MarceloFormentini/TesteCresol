@@ -68,7 +68,7 @@ public class TypeInstitutionService {
 		
 		boolean ownTypeInstitution = institutionRepository.existsTypeByInstitution(id);
 		if (ownTypeInstitution) {
-			throw new TypeInstitutionUsedException("A instituição não pode ser excluída pois possui eventos vinculados.");
+			throw new TypeInstitutionUsedException("O tipo não pode ser excluído pois possui instituição vinculada.");
 		}
 		
 		repository.deleteById(id);

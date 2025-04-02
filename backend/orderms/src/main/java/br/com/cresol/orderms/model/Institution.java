@@ -86,7 +86,7 @@ public class Institution {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 			.append("id", id)
 			.append("name", name)
-			.append("typeInstitution", typeInstitution)
+			.append("typeInstitution", typeInstitution != null ? typeInstitution.getId() : "null")
 			.append("created_at", created_at)
 			.toString();
 	}

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.cresol.orderms.config.RabbitMQConfig;
+import br.com.cresol.orderms.model.EventStatus;
 
 @Service
 public class EventProducer {
@@ -24,47 +25,60 @@ public class EventProducer {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-//	public void sendInactivateEvent(Integer eventId, LocalDateTime endDate) {
-//		long delay = Duration.between(LocalDateTime.now(), endDate).toMillis();
+//	public void scheduleEventInactivation(Integer eventId, LocalDateTime dataFim) {
+//        // Calcula o TTL em milissegundos
+//        long ttlMillis = Duration.between(LocalDateTime.now(), dataFim).toMillis();
+//        if (ttlMillis <= 0) {
+//            System.out.println("Evento já está vencido. Inativação imediata.");
+//            return;
+//        }
 //
-//		if (delay <= 0) {
-//			System.out.println("A data de fim já passou, inativando imediatamente.");
-////			rabbitTemplate.convertAndSend(RabbitMQConfig.EVENT_INACTIVATION_QUEUE, eventId);
-//			return;
-//		}
+//        try {
+//            Map<String, Object> eventData = new HashMap<>();
+//            eventData.put("eventId", eventId);
 //
-//		Map<String, Object> eventData = new HashMap<>();
-//		eventData.put("eventId", eventId);
-//		
-//		MessageProperties properties = new MessageProperties();
-//		properties.setExpiration(String.valueOf(delay)); // Define o TTL
-//		Message message = new Message(eventData.toString().getBytes(), properties);
+//            // Converte o objeto para JSON corretamente
+//            String jsonMessage = objectMapper.writeValueAsString(eventData);
 //
-//		rabbitTemplate.convertAndSend(RabbitMQConfig.EVENT_INACTIVATION_QUEUE, message);
-//		System.out.println("Publicou mensagem com o código: " + eventId + " para ser executada em " + delay);
-//	}
+//            MessageProperties properties = new MessageProperties();
+//            properties.setContentType("application/json"); // Define o tipo correto
+//            properties.setExpiration(String.valueOf(ttlMillis)); // Define o TTL
+//            Message message = new Message(jsonMessage.getBytes(), properties);
+//
+//            System.out.println("Publicando evento com TTL de " + ttlMillis + "ms para inativação: " + eventId);
+//            rabbitTemplate.convertAndSend(RabbitMQConfig.EVENT_SCHEDULED_QUEUE, message);
+//        } catch (Exception e) {
+//            System.err.println("Erro ao converter mensagem para JSON: " + e.getMessage());
+//        }
+//    }
 	
-	public void scheduleEventInactivation(Integer eventId, LocalDateTime dataFim) {
-        // Calcula o TTL em milissegundos
-        long ttlMillis = Duration.between(LocalDateTime.now(), dataFim).toMillis();
-        if (ttlMillis <= 0) {
-            System.out.println("Evento já está vencido. Inativação imediata.");
+	public void scheduleEventStatus(Integer eventId, LocalDateTime startDate, LocalDateTime endDate) {
+        sendMessage(eventId, startDate, EventStatus.EM_ANDAMENTO.getCode()); // Atualiza para "Em andamento"
+        sendMessage(eventId, endDate, EventStatus.FINALIZADO.getCode()); // Atualiza para "Finalizado"
+    }
+
+    private void sendMessage(Integer eventId, LocalDateTime triggerTime, Integer status) {
+        long delayMillis = Duration.between(LocalDateTime.now(), triggerTime).toMillis();
+        if (delayMillis <= 0) {
+            System.out.println("Evento já atingiu o status " + status + ". Atualizando imediatamente.");
+//            eventService.updateEventStatus(eventId, status);
             return;
         }
 
         try {
             Map<String, Object> eventData = new HashMap<>();
             eventData.put("eventId", eventId);
+            eventData.put("status", status.toString());
 
-            // Converte o objeto para JSON corretamente
             String jsonMessage = objectMapper.writeValueAsString(eventData);
 
             MessageProperties properties = new MessageProperties();
-            properties.setContentType("application/json"); // Define o tipo correto
-            properties.setExpiration(String.valueOf(ttlMillis)); // Define o TTL
+            properties.setContentType("application/json");
+            properties.setExpiration(String.valueOf(delayMillis));
+
             Message message = new Message(jsonMessage.getBytes(), properties);
 
-            System.out.println("Publicando evento com TTL de " + ttlMillis + "ms para inativação: " + eventId);
+            System.out.println("Agendando atualização para status " + status + " em " + delayMillis + "ms. Evento ID: " + eventId);
             rabbitTemplate.convertAndSend(RabbitMQConfig.EVENT_SCHEDULED_QUEUE, message);
         } catch (Exception e) {
             System.err.println("Erro ao converter mensagem para JSON: " + e.getMessage());

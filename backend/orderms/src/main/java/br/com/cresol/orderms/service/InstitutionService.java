@@ -10,20 +10,20 @@ import br.com.cresol.orderms.exception.InstitutionUsedException;
 import br.com.cresol.orderms.exception.TypeInstitutionNotFoundException;
 import br.com.cresol.orderms.model.Institution;
 import br.com.cresol.orderms.model.TypeInstitution;
-import br.com.cresol.orderms.repository.EventRepository;
 import br.com.cresol.orderms.repository.InstitutionRepository;
+import br.com.cresol.orderms.repository.LocationRepository;
 import br.com.cresol.orderms.repository.TypeInstitutionRepository;
 
 @Service
 public class InstitutionService {
 	
 	private final InstitutionRepository repository;
-	private final EventRepository eventRepository;
+	private final LocationRepository locationRepository;
 	private final TypeInstitutionRepository typeRepository;
 	
-	public InstitutionService(InstitutionRepository repository, EventRepository eventRepository, TypeInstitutionRepository typeRepository) {
+	public InstitutionService(InstitutionRepository repository, LocationRepository locationRepository, TypeInstitutionRepository typeRepository) {
 		this.repository = repository;
-		this.eventRepository = eventRepository;
+		this.locationRepository = locationRepository;
 		this.typeRepository = typeRepository; 
 	}
 
@@ -80,9 +80,9 @@ public class InstitutionService {
 			throw new InstitutionNotFoundException("Não existe instituição cadastrada com o código " + id);
 		}
 
-		boolean ownEvents = eventRepository.existsEventByInstitution(id);
+		boolean ownEvents = locationRepository.findByInstitution(id);
 		if (ownEvents) {
-			throw new InstitutionUsedException("A instituição não pode ser excluída pois possui eventos vinculados.");
+			throw new InstitutionUsedException("A instituição não pode ser excluída pois possui local vinculado.");
 		}
 
 		repository.deleteById(id);

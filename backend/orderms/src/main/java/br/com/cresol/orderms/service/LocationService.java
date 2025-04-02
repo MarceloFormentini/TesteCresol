@@ -49,7 +49,7 @@ public class LocationService {
 	}
 
 	public Page<LocationDTO> getAllLocation(Pageable pageable, Integer institution) {
-		return locationRepository.findAllLocation(institution, pageable)
+		return locationRepository.findAllByInstitution(institution, pageable)
 				.map(location -> new LocationDTO(location));
 	}
 

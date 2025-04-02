@@ -20,21 +20,40 @@ public class EventConsumer {
 		this.eventService = eventService;
 	}
 	
-	@RabbitListener(queues = RabbitMQConfig.EVENT_PROCESSING_QUEUE)
-    public void processInactivationEvent(String messageJson) {
-        try {
-            // Converte a string JSON para um Map
-            Map<String, Object> message = objectMapper.readValue(messageJson, Map.class);
-            Integer eventId = (Integer) message.get("eventId");
+//	@RabbitListener(queues = RabbitMQConfig.EVENT_PROCESSING_QUEUE)
+//    public void processInactivationEvent(String messageJson) {
+//        try {
+//            // Converte a string JSON para um Map
+//            Map<String, Object> message = objectMapper.readValue(messageJson, Map.class);
+//            Integer eventId = (Integer) message.get("eventId");
+//
+//            if (eventId != null) {
+//                System.out.println("Inativando evento ID: " + eventId);
+//                eventService.inactivateEvent(eventId);
+//            } else {
+//                System.err.println("ID do evento ausente na mensagem.");
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Erro ao processar mensagem do RabbitMQ: " + e.getMessage());
+//        }
+//    }
+	
+	 @RabbitListener(queues = RabbitMQConfig.EVENT_PROCESSING_QUEUE, concurrency = "5") // Suporte a 5 processos simultâneos
+	    public void processEventStatusUpdate(String messageJson) {
+	        try {
+	            // Converte JSON para Map
+	            Map<String, Object> message = objectMapper.readValue(messageJson, Map.class);
+	            Integer eventId = (Integer) message.get("eventId");
+	            String status = (String) message.get("status");
 
-            if (eventId != null) {
-                System.out.println("Inativando evento ID: " + eventId);
-                eventService.inactivateEvent(eventId);
-            } else {
-                System.err.println("ID do evento ausente na mensagem.");
-            }
-        } catch (Exception e) {
-            System.err.println("Erro ao processar mensagem do RabbitMQ: " + e.getMessage());
-        }
-    }
+	            if (eventId != null && status != null) {
+	                System.out.println("Atualizando evento ID: " + eventId + " para status: " + status);
+	                eventService.updateEventStatus(eventId, Integer.parseInt(status));
+	            } else {
+	                System.err.println("ID do evento ou status ausente na mensagem.");
+	            }
+	        } catch (Exception e) {
+	            System.err.println("Erro ao processar mensagem do RabbitMQ: " + e.getMessage());
+	        }
+	    }
 }

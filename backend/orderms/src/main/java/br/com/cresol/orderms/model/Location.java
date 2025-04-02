@@ -1,7 +1,10 @@
 package br.com.cresol.orderms.model;
 
+import java.time.LocalDateTime;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +30,10 @@ public class Location {
 	@Size(min=3, message="O nome de ter no mínimo 3 caracteres")
 	@Column(name="name", length = 255, nullable = false)
 	private String name;
+	
+	@Column(name="created_at")
+	@CreationTimestamp
+	private LocalDateTime created_at;
 	
 	@ManyToOne
 	@JoinColumn(name="institution_id")
@@ -64,12 +71,21 @@ public class Location {
 		this.name = name;
 	}
 	
+	public LocalDateTime getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(LocalDateTime created_at) {
+		this.created_at = created_at;
+	}
+	
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
 			.append("id", id)
 			.append("name", name)
-			.append("institution", institution)
+			.append("institution", institution != null ? institution.getId() : "null")
+			.append("created_at", created_at)
 			.toString();
 	}
 }

@@ -48,7 +48,6 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler({
-		EventInstitutionIncompatibleException.class,
 		EventDateIncorrectException.class,
 		LocationInstitutionIncompatibleException.class
 	})

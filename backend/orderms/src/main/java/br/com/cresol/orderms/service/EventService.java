@@ -6,40 +6,52 @@ import org.springframework.stereotype.Service;
 
 import br.com.cresol.orderms.dto.EventDTO;
 import br.com.cresol.orderms.exception.EventDateIncorrectException;
-import br.com.cresol.orderms.exception.EventInstitutionIncompatibleException;
 import br.com.cresol.orderms.exception.EventNotFoundException;
 import br.com.cresol.orderms.exception.InstitutionNotFoundException;
+import br.com.cresol.orderms.exception.LocatationNotFoudException;
 import br.com.cresol.orderms.messaging.EventProducer;
 import br.com.cresol.orderms.model.Event;
-import br.com.cresol.orderms.model.Institution;
+import br.com.cresol.orderms.model.EventStatus;
+import br.com.cresol.orderms.model.Location;
 import br.com.cresol.orderms.repository.EventRepository;
 import br.com.cresol.orderms.repository.InstitutionRepository;
+import br.com.cresol.orderms.repository.LocationRepository;
 
 @Service
 public class EventService {
 	private final EventRepository eventRepository;
 	private final InstitutionRepository institutionRepository;
+	private final LocationRepository locationRepository;
 	private final EventProducer eventProducer;
 
-	public EventService(EventRepository eventRepository, InstitutionRepository institutionRepository, EventProducer eventProducer) {
+	public EventService(EventRepository eventRepository, InstitutionRepository institutionRepository, 
+			EventProducer eventProducer, LocationRepository locationRepository) {
 		this.eventRepository = eventRepository;
 		this.institutionRepository = institutionRepository;
 		this.eventProducer = eventProducer;
+		this.locationRepository = locationRepository;
 	}
 
-	public Event addNewEvent(Integer institution, EventDTO event) {
+	public Event addNewEvent(EventDTO event, Integer institution, Integer location) {
 		
-		Institution institutionRecorded = institutionRepository.findById(institution)
-	 			.orElseThrow(() -> new InstitutionNotFoundException(
-	 				"Não existe instituição cadastrada com o código " + institution)
-	 			);
+		if (!institutionRepository.existsById(institution)) {
+	 		throw new InstitutionNotFoundException(
+	 			"Não existe instituição cadastrada com o código " + institution
+	 		);
+		}
+		
+		Location locationRecorded = locationRepository.findById(location)
+			.orElseThrow(() -> new LocatationNotFoudException(
+				"Não existe local cadastrado com o código " + location
+			)
+		);
 
 		if (event.getEndDate().isBefore(event.getStartDate())) {
 			throw new EventDateIncorrectException("A data final deve ser maior que a data inicial");
 		}
 
-		boolean existeConflito = eventRepository.existsByInstitutionAndStartDateBetweenOrEndDateBetween(
-			institutionRecorded,
+		boolean existeConflito = eventRepository.existsByLocationAndStartDateBetweenOrEndDateBetween(
+			locationRecorded,
 			event.getStartDate(),
 			event.getEndDate()
 		);
@@ -53,25 +65,52 @@ public class EventService {
 			event.getDescription(),
 			event.getStartDate(), 
 			event.getEndDate(),
-			true,
-			institutionRecorded
+			EventStatus.fromCode(
+				event.getStartDate(), 
+				event.getEndDate()
+			),
+			locationRecorded
 		);
 
 		Event eventSaved = eventRepository.save(newEvent);
 
-		eventProducer.scheduleEventInactivation(eventSaved.getId(), eventSaved.getEndDate());
+		eventProducer.scheduleEventStatus(
+			eventSaved.getId(),
+			eventSaved.getStartDate(),
+			eventSaved.getEndDate()
+		);
 
 		return eventSaved;
 	}
 
-	public Page<EventDTO> getEvent(Pageable pageable, Integer institution) {
-		 return eventRepository.findByInstitution(institution, pageable)
+	public Page<EventDTO> getEvent(Pageable pageable, Integer institution, Integer location) {
+		if (!institutionRepository.existsById(institution)) {
+	 		throw new InstitutionNotFoundException(
+	 			"Não existe instituição cadastrada com o código " + institution
+	 		);
+		}
+		
+		if (!locationRepository.existsById(location)) {
+			throw new LocatationNotFoudException(
+				"Não existe local cadastrado com o código " + location
+			);
+		}
+		
+		return eventRepository.findByLocation(location, pageable)
 			.map(event -> new EventDTO(event));
 	}
 
-	public Event getEventId(Integer institution, Integer id) {
+	public Event getEventId(Integer institution, Integer location, Integer id) {
 		if (!institutionRepository.existsById(institution)) {
-			throw new InstitutionNotFoundException("Não existe instituição cadastrada com o código " + institution);
+			throw new InstitutionNotFoundException(
+				"Não existe instituição cadastrada com o código " + institution
+			);
+		}
+		
+		if (!locationRepository.existsById(location)) {
+			throw new LocatationNotFoudException(
+				"Não existe local cadastrado com o código " + location
+			);
 		}
 
 		Event event = eventRepository.findById(id)
@@ -82,22 +121,24 @@ public class EventService {
 		return event;
 	}
 
-	public Event updateEvent(Integer institution, EventDTO event) {
+	public Event updateEvent(EventDTO event, Integer institution, Integer location) {
 
 		if (!institutionRepository.existsById(institution)) {
-			throw new InstitutionNotFoundException("Não existe instituição cadastrada com o código " + institution);
+			throw new InstitutionNotFoundException(
+				"Não existe instituição cadastrada com o código " + institution
+			);
+		}
+		
+		if (!locationRepository.existsById(location)) {
+			throw new LocatationNotFoudException(
+				"Não existe local cadastrado com o código " + location
+			);
 		}
 
 		Event eventRecorded = eventRepository.findById(event.getId())
 			.orElseThrow(() -> new EventNotFoundException(
 				"Não existe evento cadastrado com o código " + event.getId())
 			);
-
-		if (!eventRecorded.getInstitution().getId().equals(institution)) {
-			throw new EventInstitutionIncompatibleException(
-				"O evento não pertence a instituição especificada"
-			);
-		}
 
 		if (event.getEndDate().isBefore(event.getStartDate())) {
 			throw new EventDateIncorrectException("A data final deve ser maior que a data inicial");
@@ -107,28 +148,53 @@ public class EventService {
 		eventRecorded.setDescription(event.getDescription());
 		eventRecorded.setStartDate(event.getStartDate());
 		eventRecorded.setEndDate(event.getEndDate());
+		eventRecorded.setActive(
+			EventStatus.fromCode(
+				event.getStartDate(), 
+				event.getEndDate()
+			)
+		);
 
 		Event eventSaved = eventRepository.save(eventRecorded);
 
-		eventProducer.scheduleEventInactivation(eventSaved.getId(), eventSaved.getEndDate());
+		eventProducer.scheduleEventStatus(
+			eventSaved.getId(),
+			eventSaved.getStartDate(),
+			eventSaved.getEndDate()
+		);
 
 		return eventSaved;
 	}
 
-	public boolean removeEvent(Integer id) {
-		if (!eventRepository.existsById(id)) {
-			throw new InstitutionNotFoundException("Não existe evento cadastrado com o código " + id);
+	public boolean cancelEvent(Integer institution, Integer location, Integer id) {
+		if (!institutionRepository.existsById(institution)) {
+			throw new InstitutionNotFoundException(
+				"Não existe instituição cadastrada com o código " + institution
+			);
 		}
 
-		eventRepository.deleteById(id);
+		if (!locationRepository.existsById(location)) {
+			throw new LocatationNotFoudException(
+				"Não existe local cadastrado com o código " + location
+			);
+		}
+
+		Event eventRecorded = eventRepository.findById(id)
+			.orElseThrow(() ->
+				new InstitutionNotFoundException("Não existe evento cadastrado com o código " + id)
+			);
+		
+		eventRecorded.setActive(EventStatus.eventCancel());
+
+		eventRepository.save(eventRecorded);
 		return true;
 
 	}
 
-	public void inactivateEvent(Integer eventId) {
+	public void updateEventStatus(Integer eventId, Integer status) {
 		eventRepository.findById(eventId).ifPresent(
 			event -> {
-				event.setActive(false);
+				event.setActive(status);
 				eventRepository.save(event);
 				System.out.println("Evento inativado: " + eventId);
 			}

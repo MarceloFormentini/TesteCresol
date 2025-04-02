@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name="event")
@@ -30,28 +33,35 @@ public class Event {
 	private String description;
 
 	@Column(name="start_date", nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime startDate;
 
 	@Column(name="end_date", nullable = false)
+	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime endDate;
 
 	@Column(name="active", nullable = false)
-	private Boolean active;
+	private Integer active;
+	
+	@Column(name="created_at")
+	@CreationTimestamp
+	private LocalDateTime created_at;
 
 	@ManyToOne
-	@JoinColumn(name="institution_id")
-	private Institution institution;
+	@JoinColumn(name="location_id")
+	private Location location;
 
 	public Event() {
 	}
 
-	public Event(String name, String description, LocalDateTime startDate, LocalDateTime endDate, Boolean active, Institution institution) {
+	public Event(String name, String description, LocalDateTime startDate, LocalDateTime endDate, 
+			Integer active, Location location) {
 		this.name = name;
 		this.description = description;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.active = active;
-		this.institution = institution;
+		this.location = location;
 	}
 
 	public Integer getId() {
@@ -94,20 +104,28 @@ public class Event {
 		this.endDate = endDate;
 	}
 
-	public Boolean getActive() {
+	public Integer getActive() {
 		return active;
 	}
 
-	public void setActive(Boolean active) {
+	public void setActive(Integer active) {
 		this.active = active;
 	}
-
-	public Institution getInstitution() {
-		return institution;
+	
+	public LocalDateTime getCreated_at() {
+		return created_at;
 	}
 
-	public void setInstitution(Institution institution) {
-		this.institution = institution;
+	public void setCreated_at(LocalDateTime created_at) {
+		this.created_at = created_at;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 
 	@Override
@@ -119,7 +137,8 @@ public class Event {
 			.append("startDate)", startDate)
 			.append("endDate", endDate)
 			.append("active", active)
-			.append("institution", institution != null ? institution.getId() : "null")
+			.append("created_at", created_at)
+			.append("location", location != null ? location.getId() : "null")
 			.toString();
 	}
 }

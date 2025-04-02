@@ -1,14 +1,14 @@
 package br.com.cresol.orderms.dto;
 
-import java.security.DrbgParameters.Instantiation;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import br.com.cresol.orderms.config.LocalDateTimeDeserializer;
 import br.com.cresol.orderms.config.LocalDateTimeSerializer;
 import br.com.cresol.orderms.model.Event;
-import br.com.cresol.orderms.model.Institution;
+import br.com.cresol.orderms.model.Location;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,8 +17,8 @@ import jakarta.validation.constraints.Size;
 public class EventDTO {
 
 	private Integer id;
-	private Boolean active;
-	private Institution institution;
+	private Integer active;
+	private Location location;
 
 	@NotBlank(message="O nome não pod estar vazio")
 	@Size(min=3, message="O nome deve ter no mínimo 3 caracteres")
@@ -50,7 +50,7 @@ public class EventDTO {
 		this.startDate = event.getStartDate();
 		this.endDate = event.getEndDate();
 		this.active = event.getActive();
-		this.institution = event.getInstitution();
+		this.location = event.getLocation();
 	}
 
 	public Integer getId() {
@@ -61,20 +61,20 @@ public class EventDTO {
 		this.id = id;
 	}
 
-	public Boolean getActive() {
+	public Integer getActive() {
 		return active;
 	}
 
-	public void setActive(Boolean active) {
+	public void setActive(Integer active) {
 		this.active = active;
 	}
 
-	public Institution getInstitution() {
-		return institution;
+	public Location getLocation() {
+		return location;
 	}
 
-	public void setInstitution(Institution institution) {
-		this.institution = institution;
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 
 	public String getName() {
